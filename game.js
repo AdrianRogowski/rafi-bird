@@ -33,6 +33,8 @@ function preload() {
 function create() {
   rafi = this.physics.add.sprite(100, 245, "rafi");
   rafi.setCollideWorldBounds(true);
+  rafi.displayWidth = 37;
+  rafi.displayHeight = 48;
 
   jumpSound = this.sound.add("shortE");
   gameOver = this.sound.add("longE");
