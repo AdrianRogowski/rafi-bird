@@ -42,6 +42,8 @@ let jumpSound;
 let gameOver;
 let scoreText;
 let score = 0;
+let highScore = 0;
+let highScoreText;
 
 function preload() {
   this.load.image("rafi", "assets/rafi_head.png");
@@ -62,15 +64,18 @@ function create() {
     gameOver = this.sound.add("longE");
   
     pipes = this.physics.add.group();
-    this.time.addEvent({ delay: 500, callback: addPipes, callbackScope: this, loop: true });
+    this.time.addEvent({ delay: 1000, callback: addPipes, callbackScope: this, loop: true });
   
     this.physics.add.collider(rafi, pipes, () => {
       // Play the extended "E" sound when the game ends
       gameOver.play();
       this.scene.restart();
     });
-  
+
     scoreText = this.add.text(16, 16, "Score: 0", { fontSize: "32px", fill: "#fff" });
+
+    highScoreText = this.add.text(400, 16, "High: 0", { fontSize: "32px", fill: "#fff" });
+    highScoreText.setOrigin(1, 0);
   
     // Add input event listener for pointerdown (touchscreen taps or mouse clicks)
     this.input.on("pointerdown", () => {
@@ -86,6 +91,7 @@ function create() {
     this.input.keyboard.on("keydown-R", () => {
         this.scene.restart();
       });
+
 }  
 
 function jump() {
@@ -97,47 +103,45 @@ function jump() {
 }
 
 function update() {
-    if (rafi.y > this.sys.game.config.height || rafi.y < 0) {
-      // Play the extended "E" sound when the game ends
-      gameOver.play();
-  
-      // Display "Game Over" text
-      this.add.text(240, 260, "Game Over", { fontSize: "32px", fill: "#fff" }).setOrigin(0.5);
-  
-      // Restart the game after a delay
-      this.time.addEvent({
-        delay: 2000,
-        callback: () => {
-          this.scene.restart();
-        },
-        callbackScope: this
-      });
-    }
+  if (rafi.y > this.sys.game.config.height || rafi.y < 0) {
+    // Play the extended "E" sound when the game ends
+    gameOver.play();
+
+    // Call the showGameOver function
+    showGameOver.call(this);
+}
   
     pipes.getChildren().forEach((pipe) => {
-      if (pipe.getBounds().right < 0) {
+      if (pipe.getBounds().right < 0 || this.time.now - pipe.createdTime > 5000) {
+        if (pipe.texture.key === 'pipeTop') {
+          updateScore();
+        }
         pipe.destroy();
       }
     });
   }
 
   function addPipes() {
-    const pipeWidth = 85;
-    const pipeHeight = 210;
-    const gapHeight = 150;
+    const pipeWidth = 128;
+    const pipeHeight = 315;
     const pipeX = this.sys.game.config.width;
-    const pipeY = (Math.random() * (pipeHeight / 2)) + (pipeHeight / 4);
+    const pipeY = Math.floor(Math.random() * (-80)); // Adjusted calculation
+
+    const topPipe = this.physics.add.sprite(pipeX, pipeY, 'pipeTop');
+    const bottomPipe = this.physics.add.sprite(pipeX, pipeY + 840, 'pipeBottom');  
   
-    const topPipe = this.physics.add.sprite(pipeX, pipeY - pipeHeight - gapHeight, 'pipeTop');
-    const bottomPipe = this.physics.add.sprite(pipeX, pipeY + gapHeight, 'pipeBottom');
+    topPipe.setOrigin(0, 0);
+    bottomPipe.setOrigin(0, 1);
+
+    pipes.add(topPipe);
+    pipes.add(bottomPipe);
   
-    topPipe.setOrigin(0, 1);
-    bottomPipe.setOrigin(0, 0);
-  
-    topPipe.displayWidth = 85;
-    topPipe.displayHeight = 210;
-    bottomPipe.displayWidth = 85;
-    bottomPipe.displayHeight = 210;
+    topPipe.displayWidth = 128;
+    topPipe.displayHeight = 315;
+    bottomPipe.displayWidth = 128;
+    bottomPipe.displayHeight = 315;
+    topPipe.createdTime = this.time.now;
+    bottomPipe.createdTime = this.time.now;
   
     topPipe.allowGravity = false;
     bottomPipe.allowGravity = false;
@@ -145,28 +149,48 @@ function update() {
     topPipe.body.immovable = true;
     bottomPipe.body.immovable = true;
   
-    pipes.add(topPipe);
-    pipes.add(bottomPipe);
-  
     topPipe.setVelocityX(-200);
     bottomPipe.setVelocityX(-200);
-    topPipe.setVelocityY(0); // Ensures that the top pipe doesn't fall down
-    bottomPipe.setVelocityY(0); // Ensures that the bottom pipe doesn't fall down
-  
-    this.time.addEvent({
-      delay: 5000,
-      callback: () => {
-        topPipe.destroy();
-        bottomPipe.destroy();
-        updateScore();
-      },
-      callbackScope: this
-    });
-  }    
+    topPipe.setVelocityY(0);
+    bottomPipe.setVelocityY(0);
+
+
+}
+
+function resetGame() {
+  // Reset game score
+  score = 0;
+  scoreText.setText("Score: " + score);
+}
+
+function showGameOver() {
+    // Display "Game Over" text
+    const gameOverText = this.add.text(240, 260, "Game Over", { fontSize: "32px", fill: "#fff" }).setOrigin(0.5);
+    const finalScoreText = this.add.text(240, 300, "Score: " + score, { fontSize: "24px", fill: "#fff" }).setOrigin(0.5);
+    const clickToContinueText = this.add.text(240, 340, "Click to Continue", { fontSize: "24px", fill: "#fff" }).setOrigin(0.5);
+
+    // Add input event listener for pointerdown (touchscreen taps or mouse clicks)
+    this.input.once("pointerdown", () => {
+      // Remove Game Over elements
+      gameOverText.destroy();
+      finalScoreText.destroy();
+      clickToContinueText.destroy();
+
+      // Call the resetGame function
+      resetGame.call(this);
+
+      // Restart the game
+      this.scene.restart();
+  });
+}
+
 
 function updateScore() {
-    score++;
-    scoreText.setText("Score: " + score);
-    console.log("Score updated"); // Add this line for debugging
+  score++;
+  scoreText.setText("Score: " + score);
+  if (score > highScore) {
+      highScore = score;
+      highScoreText.setText("High: " + highScore);
   }
+}
   
