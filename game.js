@@ -68,17 +68,17 @@ function create() {
       this.scene.restart();
     });
   
-    scoreText = this.add.text(16, 16, "Score: 0", { fontSize: "32px", fill: "#000" });
+    scoreText = this.add.text(16, 16, "Score: 0", { fontSize: "32px", fill: "#fff" });
   
-    // // Add input event listener for pointerdown (touchscreen taps or mouse clicks)
-    // this.input.on("pointerdown", () => {
-    //   jump();
-    // });
+    // Add input event listener for pointerdown (touchscreen taps or mouse clicks)
+    this.input.on("pointerdown", () => {
+      jump();
+    });
   
-    // // Add input event listener for spacebar key
-    // this.input.keyboard.on("keydown-SPACE", () => {
-    //   jump();
-    // });
+    // Add input event listener for spacebar key
+    this.input.keyboard.on("keydown-SPACE", () => {
+      jump();
+    });
 }  
 
 function jump() {
