@@ -69,13 +69,17 @@ function create() {
     this.physics.add.collider(rafi, pipes, () => {
       // Play the extended "E" sound when the game ends
       gameOver.play();
-      this.scene.restart();
+  
+      // Call the showGameOver function
+      showGameOver.call(this);
     });
 
     scoreText = this.add.text(16, 16, "Score: 0", { fontSize: "32px", fill: "#fff" });
 
     highScoreText = this.add.text(400, 16, "High: 0", { fontSize: "32px", fill: "#fff" });
     highScoreText.setOrigin(1, 0);
+
+    resetGame.call(this);
   
     // Add input event listener for pointerdown (touchscreen taps or mouse clicks)
     this.input.on("pointerdown", () => {
@@ -169,15 +173,11 @@ function showGameOver() {
     const finalScoreText = this.add.text(240, 300, "Score: " + score, { fontSize: "24px", fill: "#fff" }).setOrigin(0.5);
     const clickToContinueText = this.add.text(240, 340, "Click to Continue", { fontSize: "24px", fill: "#fff" }).setOrigin(0.5);
 
-    // Add input event listener for pointerdown (touchscreen taps or mouse clicks)
-    this.input.once("pointerdown", () => {
+  this.input.once("pointerdown", () => {
       // Remove Game Over elements
       gameOverText.destroy();
       finalScoreText.destroy();
       clickToContinueText.destroy();
-
-      // Call the resetGame function
-      resetGame.call(this);
 
       // Restart the game
       this.scene.restart();
