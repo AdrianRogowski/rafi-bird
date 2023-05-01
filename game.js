@@ -102,6 +102,8 @@ function create() {
 }  
 
 function jump() {
+    if (this.gameOver) return;
+  
     // Play the short "E" sound
     jumpSound.play();
   
@@ -110,7 +112,10 @@ function jump() {
 }
 
 function update() {
-  if (this.gameOver) return;
+  if (this.gameOver) {
+    pipes.setVelocityX(0);
+    return;
+  }
 
   if (rafi.y > this.sys.game.config.height || rafi.y < 0) {
     // Play the extended "E" sound when the game ends
@@ -134,7 +139,7 @@ function update() {
     const pipeWidth = 128;
     const pipeHeight = 315;
     const pipeX = this.sys.game.config.width;
-    const pipeY = Math.floor(Math.random() * (-80)); // Adjusted calculation
+    const pipeY = Math.floor(Math.random() * (-140)); // Adjusted calculation
 
     const topPipe = this.physics.add.sprite(pipeX, pipeY, 'pipeTop');
     const bottomPipe = this.physics.add.sprite(pipeX, pipeY + 840, 'pipeBottom');  
