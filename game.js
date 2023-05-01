@@ -33,6 +33,7 @@ const config = {
         create: create,
         update: update,
       }],
+    highScore: 0
   };
 
   
@@ -54,6 +55,8 @@ function preload() {
 }
 
 function create() {
+    this.gameOver = false;
+
     rafi = this.physics.add.sprite(100, 245, "rafi");
     rafi.setCollideWorldBounds(true);
     rafi.displayWidth = 37;
@@ -76,7 +79,7 @@ function create() {
 
     scoreText = this.add.text(16, 16, "Score: 0", { fontSize: "32px", fill: "#fff" });
 
-    highScoreText = this.add.text(400, 16, "High: 0", { fontSize: "32px", fill: "#fff" });
+    highScoreText = this.add.text(400, 16, "High: " + config.highScore, { fontSize: "32px", fill: "#fff" });
     highScoreText.setOrigin(1, 0);
 
     resetGame.call(this);
@@ -107,6 +110,8 @@ function jump() {
 }
 
 function update() {
+  if (this.gameOver) return;
+
   if (rafi.y > this.sys.game.config.height || rafi.y < 0) {
     // Play the extended "E" sound when the game ends
     gameOver.play();
@@ -168,6 +173,8 @@ function resetGame() {
 }
 
 function showGameOver() {
+    this.gameOver = true;
+
     // Display "Game Over" text
     const gameOverText = this.add.text(240, 260, "Game Over", { fontSize: "32px", fill: "#fff" }).setOrigin(0.5);
     const finalScoreText = this.add.text(240, 300, "Score: " + score, { fontSize: "24px", fill: "#fff" }).setOrigin(0.5);
@@ -179,18 +186,20 @@ function showGameOver() {
       finalScoreText.destroy();
       clickToContinueText.destroy();
 
+      // Reset the gameOver flag
+      this.gameOver = false;
+
       // Restart the game
       this.scene.restart();
   });
 }
 
-
 function updateScore() {
   score++;
   scoreText.setText("Score: " + score);
-  if (score > highScore) {
-      highScore = score;
-      highScoreText.setText("High: " + highScore);
+  if (score > config.highScore) {
+      config.highScore = score;
+      highScoreText.setText("High: " + config.highScore);
   }
 }
   
