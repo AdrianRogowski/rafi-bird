@@ -47,7 +47,7 @@ const config = {
         debug: false,
       },
     },
-    scene: [IntroScene, PauseScene {
+    scene: [IntroScene, PauseScene, {
         key: "mainScene",
         preload: preload,
         create: create,
