@@ -15,6 +15,26 @@ class IntroScene extends Phaser.Scene {
       });
     }
   }
+
+  class PauseScene extends Phaser.Scene {
+    constructor() {
+      super("pauseScene");
+    }
+  
+    create() {
+      // Add "Game Paused" text
+      this.add.text(240, 260, "Game Paused", { fontSize: "32px", fill: "#fff" }).setOrigin(0.5);
+      this.add.text(240, 300, "Click to Resume", { fontSize: "24px", fill: "#fff" }).setOrigin(0.5);
+  
+      // Add input event listener for pointerdown (touchscreen taps or mouse clicks)
+      this.input.on("pointerdown", () => {
+        // Resume the main game scene
+        this.scene.resume("mainScene");
+        // Stop the pause scene
+        this.scene.stop();
+      });
+    }
+  }
   
 const config = {
     type: Phaser.AUTO,
@@ -27,7 +47,7 @@ const config = {
         debug: false,
       },
     },
-    scene: [IntroScene, {
+    scene: [IntroScene, PauseScene {
         key: "mainScene",
         preload: preload,
         create: create,
@@ -98,6 +118,12 @@ function create() {
     this.input.keyboard.on("keydown-R", () => {
         this.scene.restart();
       });
+
+    // Add input event listener for "P" key to pause the game
+      this.input.keyboard.on("keydown-P", () => {
+      this.scene.pause();
+      this.scene.launch("pauseScene");
+  });
 
 }  
 
